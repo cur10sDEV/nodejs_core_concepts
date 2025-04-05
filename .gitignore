@@ -1,4 +1,4 @@
 node_modules
 **/*.txt
 dist
-tsconfig.tsbuildinfo
+*.tsbuildinfo
