@@ -15,7 +15,7 @@ if (cluster.isPrimary) {
 }
 
 // return the list of all videos uploaded by the logged in user
-const getVideos = (req, res, handleError) => {
+const getVideos = (req, res) => {
   DB.update();
   const videos = DB.videos.filter((video) => video.userId === req.userId);
 
@@ -23,7 +23,7 @@ const getVideos = (req, res, handleError) => {
 };
 
 // upload a video
-const uploadVideo = async (req, res, handleError) => {
+const uploadVideo = async (req, res, next) => {
   const specifiedFileName = req.headers.filename;
   const extension = path.extname(specifiedFileName).substring(1).toLowerCase();
   const name = path.parse(specifiedFileName).name;
@@ -33,7 +33,7 @@ const uploadVideo = async (req, res, handleError) => {
   const FORMATS_SUPPORTED = ["mov", "mp4"];
 
   if (FORMATS_SUPPORTED.indexOf(extension) === -1) {
-    return handleError({
+    return next({
       status: 400,
       message: "Only these formats are supported: mov, mp4",
     });
@@ -76,21 +76,21 @@ const uploadVideo = async (req, res, handleError) => {
   } catch (error) {
     // delete the folder, created during uploading
     util.deleteFolder(folderPath);
-    if (error.code !== "ECONNRESET") return handleError(error);
+    if (error.code !== "ECONNRESET") return next(error);
   }
 };
 
 // return video assets like thumbnail
-const getVideoAsset = async (req, res, handleError) => {
+const getVideoAsset = async (req, res, next) => {
   try {
-    const videoId = req.params.get("videoId");
-    const type = req.params.get("type");
+    const videoId = req.query.videoId;
+    const type = req.query.type;
 
     DB.update();
     const video = DB.videos.find((video) => video.videoId === videoId);
 
     if (!video) {
-      return handleError({
+      return next({
         status: 404,
         message: "Video not found!",
       });
@@ -122,7 +122,7 @@ const getVideoAsset = async (req, res, handleError) => {
         break;
 
       case "resize":
-        const dimensions = req.params.get("dimensions");
+        const dimensions = req.query.dimensions;
         file = await open(
           `./storage/${videoId}/${dimensions}.${video.extension}`,
           "r"
@@ -156,21 +156,21 @@ const getVideoAsset = async (req, res, handleError) => {
 };
 
 // extract the audio off a video file
-const extractAudio = async (req, res, handleError) => {
-  const videoId = req.params.get("videoId");
+const extractAudio = async (req, res, next) => {
+  const videoId = req.query.videoId;
 
   DB.update();
   const video = DB.videos.find((video) => video.videoId === videoId);
 
   if (!video) {
-    return handleError({
+    return next({
       status: 404,
       message: "Video not found!",
     });
   }
 
   if (video.extractedAudio) {
-    return handleError({
+    return next({
       status: 400,
       message: "The audio has already been extracted from this video!",
     });
@@ -192,12 +192,12 @@ const extractAudio = async (req, res, handleError) => {
     });
   } catch (error) {
     util.deleteFile(audioPath);
-    return handleError(error);
+    return next(error);
   }
 };
 
 // resize a video to provided dimensions
-const resizeVideo = async (req, res, handleError) => {
+const resizeVideo = async (req, res, next) => {
   const videoId = req.body.videoId;
   const width = parseInt(req.body.width);
   const height = parseInt(req.body.height);
@@ -230,7 +230,7 @@ const resizeVideo = async (req, res, handleError) => {
       message: "The video is now being processed!",
     });
   } catch (error) {
-    return handleError(error);
+    return next(error);
   }
 };
 

@@ -8,33 +8,33 @@ module.exports = (server) => {
   // ------------------------------------------------ //
 
   // Log a user in and give them a token
-  server.route("post", "/api/login", User.logUserIn);
+  server.post("/api/login", User.logUserIn);
 
   // Log a user out
-  server.route("delete", "/api/logout", User.logUserOut);
+  server.delete("/api/logout", User.logUserOut);
 
   // Send user info
-  server.route("get", "/api/user", User.sendUserInfo);
+  server.get("/api/user", User.sendUserInfo);
 
   // Update a user info
-  server.route("put", "/api/user", User.updateUser);
+  server.put("/api/user", User.updateUser);
 
   // ------------------------------------------------ //
   // ************ VIDEO ROUTES ************* //
   // ------------------------------------------------ //
 
   // Get videos
-  server.route("get", "/api/videos", Video.getVideos);
+  server.get("/api/videos", Video.getVideos);
 
   // upload video
-  server.route("post", "/api/upload-video", Video.uploadVideo);
+  server.post("/api/upload-video", Video.uploadVideo);
 
   // extract audio from a video file
-  server.route("patch", "/api/video/extract-audio", Video.extractAudio);
+  server.patch("/api/video/extract-audio", Video.extractAudio);
 
   // resize a video
-  server.route("put", "/api/video/resize", Video.resizeVideo);
+  server.put("/api/video/resize", Video.resizeVideo);
 
   // get video assets like thumbnail
-  server.route("get", "/get-video-asset", Video.getVideoAsset);
+  server.get("/get-video-asset", Video.getVideoAsset);
 };

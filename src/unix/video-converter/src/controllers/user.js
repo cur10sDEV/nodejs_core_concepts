@@ -1,6 +1,6 @@
 const DB = require("../DB");
 
-const logUserIn = (req, res, handleErr) => {
+const logUserIn = (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
 
@@ -22,7 +22,7 @@ const logUserIn = (req, res, handleErr) => {
     res.setHeader("Set-Cookie", `token=${token}; Path=/;`);
     res.status(200).json({ message: "Logged in successfully!" });
   } else {
-    return handleErr({ status: 401, message: "Invalid username or password." });
+    return next({ status: 401, message: "Invalid username or password." });
   }
 };
 
