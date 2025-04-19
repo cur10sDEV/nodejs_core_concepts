@@ -2,12 +2,17 @@ const { mkdir, open } = require("node:fs/promises");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { pipeline } = require("node:stream/promises");
+const cluster = require("cluster");
 const util = require("../../lib/uitl");
 const FF = require("../../lib/ff");
 const DB = require("../DB");
 const JobQueue = require("../../lib/job-queue");
 
-const jobs = new JobQueue();
+let jobs;
+// only use this if not in cluster mode
+if (cluster.isPrimary) {
+  jobs = new JobQueue();
+}
 
 // return the list of all videos uploaded by the logged in user
 const getVideos = (req, res, handleError) => {
@@ -203,13 +208,22 @@ const resizeVideo = async (req, res, handleError) => {
   DB.save();
 
   try {
-    // put the job on the queue
-    jobs.enqueue({
-      type: "resize",
-      videoId,
-      width,
-      height,
-    });
+    // normal mode
+    if (cluster.isPrimary) {
+      // put the job on the queue
+      jobs.enqueue({
+        type: "resize",
+        videoId,
+        width,
+        height,
+      });
+    } else {
+      // cluster mode - communication between primary and worker processes
+      process.send({
+        messageType: "new-resize",
+        data: { videoId, width, height },
+      });
+    }
 
     res.status(200).json({
       status: "success",
