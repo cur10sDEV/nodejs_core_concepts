@@ -1,4 +1,6 @@
 node_modules
 **/*.txt
+**/*.gz
+**/*.zip
 dist
 *.tsbuildinfo
