@@ -8,7 +8,7 @@ import {
 } from "zlib";
 
 // NOTE: These compression/decompression methods returns a "TRANSFORM" stream
-//  that changes the data along the way and returns it for any writeStream to ingest it
+//  that changes the data along the way and returns it to any writeStream for ingestion
 
 // #################################### GZIP ####################################
 
