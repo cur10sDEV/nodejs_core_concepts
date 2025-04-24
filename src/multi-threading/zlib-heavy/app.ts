@@ -1,4 +1,4 @@
-process.env.UV_THREADPOOL_SIZE = "6";
+process.env.UV_THREADPOOL_SIZE = "6"; // default value is 4
 
 import { join } from "path";
 import { Worker } from "worker_threads";
